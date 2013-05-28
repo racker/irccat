@@ -198,6 +198,10 @@ public class IRCCat extends PircBot {
 		handleMessage(null, sender, message);
 	}
 
+    public void changeTopic(String target, String topic) {
+            super.setTopic(target, topic);
+    }
+
     public void sendMsg(String t, String m) {
             m = mIRCify(m);
             super.sendMessage(t, m);
@@ -368,6 +372,19 @@ public class IRCCat extends PircBot {
 			System.exit(0);
 
 		return "";
+	}
+
+	public void catTopic(String stuff, String[] recips) {
+		for (int ci = 0; ci < recips.length; ci++) {
+			changeTopic(recips[ci], stuff);
+		}
+	}
+
+	public void catTopicToAll(String stuff) {
+		String[] channels = getChannels();
+		for (int i = 0; i < channels.length; i++) {
+			changeTopic(channels[i], stuff);
+		}
 	}
 
 	public void catStuffToAll(String stuff) {
