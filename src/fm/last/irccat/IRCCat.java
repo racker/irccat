@@ -301,8 +301,6 @@ public class IRCCat extends PircBot {
 			return;
 		}
 
-
-
 		if (cmd.trim().length() < 1)
 			return;
 		
