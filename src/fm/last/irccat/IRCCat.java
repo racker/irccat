@@ -33,7 +33,7 @@ public class IRCCat extends PircBot {
     private HashMap<String, Integer> maxCmdResponseLines = new HashMap();
 	//private int maxCmdResponseLines = 26;
 	private XMLConfiguration config;
-    private bool mute = false;
+    private Boolean mute = false;
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -280,13 +280,6 @@ public class IRCCat extends PircBot {
 		String cmd;
 		String respondTo = channel_ == null ? sender : channel_;
 
-        if (mute) {
-            // we are muted, don't say anything at all
-            return;
-        };
-		
-		
-		
 		if (message.startsWith(nick)) {
 			// someone said something to us.
 			// we don't care.
@@ -303,10 +296,16 @@ public class IRCCat extends PircBot {
 					sender);
 			if (!(resp == null || resp.equals("")))
 				sendMessage(respondTo, resp);
-            
+
             System.out.println("Built-in: ["+respondTo+"] <"+sender+"> "+message);
 			return;
 		}
+
+        if (mute) {
+            // we are muted, don't say anything at all
+            // but we still want to respond to !commands
+            return;
+        };
 
 		if (message.startsWith("?")) {
 			// external script command.
@@ -375,13 +374,18 @@ public class IRCCat extends PircBot {
 
         // MUTE THE BOT
         if (method.equals("mute")) {
-          this.catStuffToAll("<" + sender + ">" + " has muted me. !unmute to unmute");
-          mute = true;
+          if (!mute) {
+              this.catStuffToAll(sender + " has muted me. !unmute to unmute me.");
+              mute = true;
+          }
         }
 
         // UNMUTE THE BOT
         if (method.equals("unmute")) {
-          mute = false;
+          if (mute) {
+              this.catStuffToAll(sender + " has unmuted me.");
+              mute = false;
+          }
         }
 
 		// EXIT()
