@@ -139,7 +139,7 @@ public class IRCCat extends PircBot {
 
 	public int getMaxCmdResponseLines(String chan) {
         if (chan != null) {
-            if (maxCmdResponseLines.containsKey(chan)) {
+            if (maxCmdResponseLines.containsKey(chan) && maxCmdResponseLines.get(chan) != null) {
                 return maxCmdResponseLines.get(chan);
             }
         }
@@ -280,19 +280,6 @@ public class IRCCat extends PircBot {
 		String cmd;
 		String respondTo = channel_ == null ? sender : channel_;
 
-        if (mute) {
-            // we are muted, don't say anything at all
-            return;
-        };
-		
-		
-		
-		if (message.startsWith(nick)) {
-			// someone said something to us.
-			// we don't care.
-			return;
-		}
-
 		if (message.startsWith("!")) {
 			if(!isTrusted(sender)) {
                 System.out.println("UNTRUSTED (ignoring): ["+respondTo+"] <"+sender+"> "+message);
@@ -311,10 +298,15 @@ public class IRCCat extends PircBot {
 		if (message.startsWith("?")) {
 			// external script command.
 			cmd = message.substring(1).trim();
+		} else if (message.startsWith(nick + ": ")) {
+            // Length + 1 to account for the :
+            cmd = message.substring(nick.length() + 1).trim();
 		} else {
 			// just a normal message which we ignore
 			return;
 		}
+
+
 
 		if (cmd.trim().length() < 1)
 			return;
