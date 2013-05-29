@@ -33,6 +33,7 @@ public class IRCCat extends PircBot {
     private HashMap<String, Integer> maxCmdResponseLines = new HashMap();
 	//private int maxCmdResponseLines = 26;
 	private XMLConfiguration config;
+    private bool mute = false;
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -138,7 +139,7 @@ public class IRCCat extends PircBot {
 
 	public int getMaxCmdResponseLines(String chan) {
         if (chan != null) {
-            if (maxCmdResponseLines.containsKey(chan)) {
+            if (maxCmdResponseLines.containsKey(chan) && maxCmdResponseLines.get(chan) != null) {
                 return maxCmdResponseLines.get(chan);
             }
         }
@@ -197,6 +198,10 @@ public class IRCCat extends PircBot {
 			String message) {
 		handleMessage(null, sender, message);
 	}
+
+    public void changeTopic(String target, String topic) {
+            super.setTopic(target, topic);
+    }
 
     public void sendMsg(String t, String m) {
             m = mIRCify(m);
@@ -274,14 +279,6 @@ public class IRCCat extends PircBot {
 	public void handleMessage(String channel_, String sender, String message) {
 		String cmd;
 		String respondTo = channel_ == null ? sender : channel_;
-		
-		
-		
-		if (message.startsWith(nick)) {
-			// someone said something to us.
-			// we don't care.
-			return;
-		}
 
 		if (message.startsWith("!")) {
 			if(!isTrusted(sender)) {
@@ -301,10 +298,15 @@ public class IRCCat extends PircBot {
 		if (message.startsWith("?")) {
 			// external script command.
 			cmd = message.substring(1).trim();
+		} else if (message.startsWith(nick + ": ")) {
+            // Length + 1 to account for the :
+            cmd = message.substring(nick.length() + 1).trim();
 		} else {
 			// just a normal message which we ignore
 			return;
 		}
+
+
 
 		if (cmd.trim().length() < 1)
 			return;
@@ -363,11 +365,35 @@ public class IRCCat extends PircBot {
 			return sb.toString();
 		}
 
+        // MUTE THE BOT
+        if (method.equals("mute")) {
+          this.catStuffToAll("<" + sender + ">" + " has muted me. !unmute to unmute");
+          mute = true;
+        }
+
+        // UNMUTE THE BOT
+        if (method.equals("unmute")) {
+          mute = false;
+        }
+
 		// EXIT()
 		if (method.equals("exit"))
 			System.exit(0);
 
 		return "";
+	}
+
+	public void catTopic(String stuff, String[] recips) {
+		for (int ci = 0; ci < recips.length; ci++) {
+			changeTopic(recips[ci], stuff);
+		}
+	}
+
+	public void catTopicToAll(String stuff) {
+		String[] channels = getChannels();
+		for (int i = 0; i < channels.length; i++) {
+			changeTopic(channels[i], stuff);
+		}
 	}
 
 	public void catStuffToAll(String stuff) {
