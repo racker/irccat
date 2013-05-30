@@ -292,8 +292,12 @@ public class IRCCat extends PircBot {
 
 		if (message.startsWith("?")) {
 			// external script command.
-			cmd = message.substring(1).trim();
+			//cmd = message.substring(1).trim();
+            // Breaking compatibility with upstream here
+            // We don't want commands to start with ?,  so just return
+            return;
 		} else if (message.startsWith(nick + ": ")) {
+            // external script command
             // Length + 1 to account for the :
             cmd = message.substring(nick.length() + 1).trim();
 		} else {
