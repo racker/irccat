@@ -111,19 +111,20 @@ public class IRCCat extends PircBot {
 				"IRCCat - a development support bot, used by Last.fm"));
 
 
-		try {
-			// connect to server
-			int tries =0 ;
-			while (!isConnected()) {
-				tries++;
-				System.out.println("Connecting to server [try "+tries+"]: "+ config.getString("server.address"));
-				connect(config.getString("server.address"), config.getInt(
-						"server.port", 6667), config.getString(
-						"server.password", ""));
-				if(tries>1) Thread.sleep(10000);
-			}
-		} catch (Exception e) {
+		// connect to server
+		int tries =0 ;
+		while (!isConnected()) {
+		    tries++;
+		    System.out.println("Connecting to server [try "+tries+"]: "+ config.getString("server.address"));
+		    try {
+			connect(config.getString("server.address"),
+				config.getInt("server.port", 6667),
+				config.getString("server.password", ""));
+		    } catch (Exception e) {
 			System.out.println(e.toString());
+		    }
+
+		    if(tries>1) Thread.sleep(10000);
 		}
 
 	}
