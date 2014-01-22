@@ -139,7 +139,7 @@ public class IRCCat extends PircBot {
 
 	public int getMaxCmdResponseLines(String chan) {
         if (chan != null) {
-            if (maxCmdResponseLines.containsKey(chan)) {
+            if (maxCmdResponseLines.containsKey(chan) && maxCmdResponseLines.get(chan) != null) {
                 return maxCmdResponseLines.get(chan);
             }
         }
@@ -275,14 +275,6 @@ public class IRCCat extends PircBot {
 	public void handleMessage(String channel_, String sender, String message) {
 		String cmd;
 		String respondTo = channel_ == null ? sender : channel_;
-		
-		
-		
-		if (message.startsWith(nick)) {
-			// someone said something to us.
-			// we don't care.
-			return;
-		}
 
 		if (message.startsWith("!")) {
 			if(!isTrusted(sender)) {
@@ -301,7 +293,14 @@ public class IRCCat extends PircBot {
 
 		if (message.startsWith("?")) {
 			// external script command.
-			cmd = message.substring(1).trim();
+			//cmd = message.substring(1).trim();
+            // Breaking compatibility with upstream here
+            // We don't want commands to start with ?,  so just return
+            return;
+		} else if (message.startsWith(nick + ": ")) {
+            // external script command
+            // Length + 1 to account for the :
+            cmd = message.substring(nick.length() + 1).trim();
 		} else {
 			// just a normal message which we ignore
 			return;
